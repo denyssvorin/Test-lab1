@@ -10,9 +10,24 @@ pool:
   vmImage: 'macos-latest'
 
 steps:
-    - task: JavaToolInstaller@0
-      inputs:
-        versionSpec: '11'
-        jdkArchitectureOption: 'x64'
-        jdkSourceOption: 'PreInstalled'
+# 1) Встановлюємо JDK 11
+- task: JavaToolInstaller@0
+  inputs:
+    versionSpec: '11'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
 
+# 2) Дозвіл на виконання Gradle
+- script: chmod +x gradlew
+  displayName: 'Grant execute permission for gradlew'
+
+# 3) Збірка проєкту
+- script: ./gradlew assembleDebug
+  displayName: 'Build Debug APK'
+
+# 4) Збереження артефактів (APK)
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: 'app/build/outputs/apk/debug'
+    artifactName: 'apk-debug'
+    publishLocation: 'Container'
